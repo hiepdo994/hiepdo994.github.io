@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Quick Photo Upload</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="font-family:sans-serif;text-align:center;padding:20px;">
+
+<h2>Take a Photo</h2>
+
+<input type="file" accept="image/*" capture="environment" id="cameraInput">
+
+<p id="status"></p>
+
+<script>
+const scriptURL = "https://script.google.com/macros/s/AKfycbxU9PjrWEpGbxCniYEnnKBjZt6llmO0PqoeYYlIaUcQIsVYRdN57a2eURiO6QLsFhKx/exec
+";
+
+document.getElementById('cameraInput').addEventListener('change', async function(e) {
+
+  const file = e.target.files[0];
+  if (!file) return;
+
+  document.getElementById('status').innerText = "Uploading...";
+
+  const reader = new FileReader();
+
+  reader.onloadend = async function() {
+
+    const base64 = reader.result.split(',')[1];
+
+    const response = await fetch(scriptURL, {
+      method: 'POST',
+      body: JSON.stringify({
+        image: base64
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      document.getElementById('status').innerText =
+        "Upload successful!";
+    } else {
+      document.getElementById('status').innerText =
+        "Upload failed.";
+    }
+  };
+
+  reader.readAsDataURL(file);
+});
+</script>
+
+</body>
+</html>
